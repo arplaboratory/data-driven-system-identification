@@ -1,0 +1,120 @@
+<!doctype html>
+<html>
+    <link rel="stylesheet" href="index.css">
+    <head>
+    </head>
+    <body>
+    </body>
+  <script type="module">
+    import Module from './build/output.mjs';
+    import {fetchWithProgress} from './fetch_with_progress.js';
+    import {getExcitationMetrics} from './excitation_metrics.js';
+    import {pickRanges} from './pick_ranges.js';
+    const debug = true
+    const motor_command_topic = "actuator_motors_mux";
+    const globals = {}
+    async function yield_some(){
+        return new Promise((resolve) => {
+            setTimeout(resolve, 100);
+        })
+    }
+    async function log(message){
+        console.log(message);
+        const message_element = document.createElement("div")
+        message_element.textContent = message;
+        document.body.appendChild(message_element);
+        await yield_some();
+    }
+    async function main() {
+
+        const rotor_x_displacement = 0.4179/2
+        const rotor_y_displacement = 0.481332/2
+        let model = {
+            gravity: 9.81,
+            mass: 2.3 + 1.05,
+            rotor_positions: [
+                [ rotor_x_displacement, -rotor_y_displacement, 0],
+                [-rotor_x_displacement,  rotor_y_displacement, 0],
+                [ rotor_x_displacement,  rotor_y_displacement, 0],
+                [-rotor_x_displacement, -rotor_y_displacement, 0]
+            ],
+            rotor_thrust_directions: [
+                [0, 0, 1],
+                [0, 0, 1],
+                [0, 0, 1],
+                [0, 0, 1]
+            ],
+            rotor_torque_directions: [
+                [0, 0, -1],
+                [0, 0, -1],
+                [0, 0,  1],
+                [0, 0,  1]
+            ]
+        }
+        await log("Please define the model (mass + geometry):")
+        const model_input = document.createElement('textarea')
+        model_input.textContent = JSON.stringify(model, null, 2)
+        model_input.cols = 100
+        model_input.rows = model_input.textContent.split("\n").length
+        const model_input_submit = document.createElement('button')
+        model_input_submit.textContent = "Set"
+
+        document.body.appendChild(model_input)
+        document.body.appendChild(document.createElement('br'))
+        document.body.appendChild(model_input_submit)
+        document.body.appendChild(document.createElement('br'))
+
+        await new Promise((resolve) => {
+            if(debug){
+                resolve()
+            }
+            else{
+                model_input_submit.onclick = resolve;
+            }
+        })
+        model = JSON.parse(model_input.value)
+
+        console.log("Model")
+        console.log(model)
+
+
+
+        const m = await Module();
+        const Flight = m["Flight"];
+        const load_ulog = m["load_ulog"];
+        const load_flight = m["load_flight"];
+        const get_flight_data = m["get_flight_data"];
+        const log_file_paths = [
+            "logs_large/log_63_2024-1-8-16-37-54.ulg",
+            "logs_large/log_64_2024-1-8-16-39-44.ulg",
+            "logs_large/log_65_2024-1-8-16-40-52.ulg",
+            "logs_large/log_66_2024-1-8-16-42-48.ulg",
+        ]
+        const log_files = await Promise.all(log_file_paths.map(async log_file_path => await fetchWithProgress(log_file_path, (current, total) => {
+            // console.log(`Downloaded ${current} of ${total} bytes`);
+        })));
+        // const log_file = new Uint8Array(await log_file_response.arrayBuffer());
+        const flight_data = []
+        const excitation_metrics = []
+        for(var log_file_i=0; log_file_i < log_files.length; log_file_i++){
+            const log_file = log_files[log_file_i];
+            const log_file_path = log_file_paths[log_file_i];
+            console.log("Reading log file")
+            const log_file_data_source = load_ulog(log_file, log_file_path);
+            console.log("Finished reading log file")
+            const flight = new Flight();
+            load_flight(log_file_data_source, flight);
+            const current_flight_data = get_flight_data(flight);
+
+            flight_data.push(current_flight_data)
+            const current_excitation_metrics = getExcitationMetrics(model, current_flight_data, motor_command_topic);
+            excitation_metrics.push(current_excitation_metrics)
+        }
+        const ranges = await pickRanges(globals, log_file_paths, flight_data, excitation_metrics, motor_command_topic)
+        console.log("Ranges: ", ranges)
+
+
+    }
+    document.addEventListener('DOMContentLoaded', main);
+  </script>
+</html>

@@ -1,0 +1,2 @@
+OPTIONS="-O3 -s MODULARIZE=1 -s EXPORT_ES6=1 -s USE_ES6_IMPORT_META=0 -s ENVIRONMENT='web' -sALLOW_MEMORY_GROWTH --pre-js prejs.js"
+em++ --bind $OPTIONS -Iexternal/ulog_cpp src/parse_bind.cpp external/ulog_cpp/ulog_cpp/*.cpp -o build/output.mjs 

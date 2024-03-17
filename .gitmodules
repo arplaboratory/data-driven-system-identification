@@ -1,0 +1,6 @@
+[submodule "external/ulog_cpp"]
+	path = external/ulog_cpp
+	url = https://github.com/PX4/ulog_cpp.git
+[submodule "static"]
+	path = static
+	url = https://github.com/rl-tools/sysid.tools.git

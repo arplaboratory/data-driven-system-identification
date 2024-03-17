@@ -1,0 +1,7 @@
+.ipynb_checkpoints
+__pycache__
+cfusdlog.py
+/**/*.mp4
+cmake-*
+.idea
+.vscode

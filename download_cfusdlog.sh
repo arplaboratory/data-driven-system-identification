@@ -1,0 +1,1 @@
+wget https://github.com/bitcraze/crazyflie-firmware/raw/f61da11d54b6d54c7fa746688e8e9be4edd73a29/tools/usdlog/cfusdlog.py -O cfusdlog.py
