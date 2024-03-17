@@ -1,7 +1,22 @@
+# Download
 ```
-git submodule update --init
+git clone --recursive https://github.com/arplaboratory/data-driven-system-identification.git
+```
+# Install
+```
+cd data-driven-system-identification
 ./download_cfusdlog.sh
 ```
+
+# Run
+```
+jupyter lab
+```
+Open [sysid.ipynb](sysid.ipynb)
+
+
+
+
 
 import json
 from json import JSONEncoder
