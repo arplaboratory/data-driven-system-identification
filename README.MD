@@ -1,3 +1,4 @@
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/arplaboratory/data-driven-system-identification/blob/main/sysid.ipynb)
 # Download
 ```
 git clone --recursive https://github.com/arplaboratory/data-driven-system-identification.git
@@ -17,14 +18,3 @@ Open [sysid.ipynb](sysid.ipynb)
 
 
 
-
-import json
-from json import JSONEncoder
-
-class NumpyArrayEncoder(JSONEncoder):
-def default(self, obj):
-if isinstance(obj, np.ndarray):
-return obj.tolist()
-return super().default(obj)
-with open(f"{model_name}_flights_thrust_timeframes", "w") as f:
-f.write(json.dumps(flights_thrust, cls=NumpyArrayEncoder))
