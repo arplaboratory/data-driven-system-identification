@@ -7,7 +7,7 @@ git clone --recursive https://github.com/arplaboratory/data-driven-system-identi
 ```
 cd data-driven-system-identification
 ./download_cfusdlog.sh
-pip install jupyter numpy matplotlib scipy tqdm pandas
+pip install jupyter ipywidgets numpy matplotlib scipy tqdm pandas pyulog
 ```
 
 # Run
